@@ -132,6 +132,24 @@ jobs:
       run: cargo install --debug cargo-hack
     - name: Check all targets
       run: make check_all_targets
+  Wine:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    # Install linker, libraries, and test runner (Wine) for x86_64-pc-windows-gnu.
+    - uses: taiki-e/setup-cross-toolchain-action@v1
+      with:
+        target: x86_64-pc-windows-gnu
+        runner: wine@7.13
+    - name: Tests
+      run: cargo test --all-features --target x86_64-pc-windows-gnu
+    - name: Tests release build
+      run: cargo test --release --all-features --target x86_64-pc-windows-gnu
   # Single job required to merge the pr.
   Passed:
     runs-on: ubuntu-latest
@@ -144,5 +162,6 @@ jobs:
       - Docs
       - Rustfmt
       - CheckTargets
+      - Wine
     steps:
       - run: exit 0
